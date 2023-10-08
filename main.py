@@ -1,72 +1,28 @@
-from zeep import Client
+from coverage import Coverage
+from location import Location
 
-wsdl_url = "https://qa-appserver.sunvizion.izzi.mx/Users.AuthenticationWebService/AuthenticationWebService.asmx?wsdl"
+def login(coverage:Coverage):
+    coverage.init_service('https://qa-appserver.sunvizion.izzi.mx/Users.AuthenticationWebService/AuthenticationWebService.asmx?wsdl')
+    key = coverage.get_api_key("cyber_ideas", "Cy6ER!|>3@s23")
+    
+    return key
 
-# Crea un cliente Zeep para el servicio SOAP
-cliente = Client(wsdl_url)
+def get_all_coverage(coverage:Coverage, key:int, list_coordinates:list):
+    coverage.init_service('https://qa-appserver.sunvizion.izzi.mx/Integration.IZZIWebServices/V1/ResourceOperation.svc?wsdl')
+    list_coverage = []
+    for coordinates in list_coordinates:
+        ca = coverage.get_ca(10, coordinates[0], coordinates[1], key)
+        response_coverage = coverage.get_coverage(ca)
 
-# Define los parámetros de entrada para el método LoginOrRefreshUserToken
-user_token_key_to_refresh = "3211682680"
-login_name = "cyber_ideas"
-password = "Cy6ER!|>3@s23"
+        list_coverage.append(response_coverage)
 
-# Llama al método LoginOrRefreshUserToken
-respuesta = cliente.service.LoginOrRefreshUserToken(
-    userTokenKeyToRefresh=user_token_key_to_refresh,
-    loginName=login_name,
-    password=password
-)
+    return list_coverage
 
-# Extrae e imprime la información relevante de la respuesta
-resultado_login = respuesta.loginResult.Result
-llave_user_token = respuesta.userToken.Key
-sesion = respuesta.userToken.Session
+if __name__ == '__main__':
 
-print(f"Resultado del inicio de sesión: {resultado_login}")
-print(f"Llave del User Token: {llave_user_token}")
-print(f"Sesión: {sesion}")
+    coverage = Coverage()
+    key = login(coverage)
+    list_coordinates = [(28.7488779, -106.1258333), (28.7488779, -106.1258333)]
+    list_coverage = get_all_coverage(coverage, key, list_coordinates)
 
-
-wsdl_url = "https://qa-appserver.sunvizion.izzi.mx/Integration.IZZIWebServices/V1/ResourceOperation.svc?wsdl"
-
-# Crear un cliente Zeep para el servicio SOAP
-cliente = Client(wsdl_url)
-
-# Definir los parámetros de entrada
-latitude = 19.4793065776055
-longitude = -99.1786767018442
-distance = 100
-user_token_key = llave_user_token  # Tu token de usuario aquí
-
-
-# Llame al método GetNearestCA
-
-RequestData=dict(
-    Distance=distance,
-    Latitude=latitude,
-    Longitude=longitude,
-)
-
-
-# Crear el encabezado con el token de usuario
-header = cliente.get_element("{http://suntech.pl/technology/v1}Context")
-context = header(UserTokenKey=user_token_key)
-
-# Agregar el encabezado al cliente
-cliente.set_default_soapheaders([context])
-
-# Realizar la solicitud al servicio SOAP
-response = cliente.service.GetNearestCA(RequestData)
-
-# Extraer y mostrar el resultado
-ca = response.body.ResponseData.CA
-print(f"El CA más cercano es: {ca}")
-
-CA = {
-    'CA' : ca
-}
-response_coverage = cliente.service.GetServiceFlagsForCA(CA)
-
-coverage_data = response_coverage.body.ResponseData
-
-print(f'Los datos de covertura son: {coverage_data}')
+    print(list_coverage)

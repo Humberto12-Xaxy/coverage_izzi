@@ -8,7 +8,7 @@ class Coverage:
     def init_service(self, wsdl_url:str):
         self.cliente = Client(wsdl_url)
 
-    def get_api_key(self, username, password:str): 
+    def get_api_key(self, username:str, password:str): 
 
         if self.key == '3211682680':
             response = self.cliente.service.LoginOrRefreshUserToken(
@@ -47,10 +47,8 @@ class Coverage:
         return coverage_data
 
 
-
-
 if __name__ == '__main__':
-
+    
     coverage = Coverage()
 
     coverage.init_service("https://qa-appserver.sunvizion.izzi.mx/Users.AuthenticationWebService/AuthenticationWebService.asmx?wsdl")
