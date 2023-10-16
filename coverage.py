@@ -17,6 +17,7 @@ class Coverage:
                 password = password
             )
 
+            print(response.userToken.Key)
             self.key = response.userToken.Key
             return self.key
         
@@ -53,7 +54,7 @@ if __name__ == '__main__':
 
     coverage.init_service("https://qa-appserver.sunvizion.izzi.mx/Users.AuthenticationWebService/AuthenticationWebService.asmx?wsdl")
     key = coverage.get_api_key("cyber_ideas", "Cy6ER!|>3@s23")
-    coverage.init_service("https://qa-appserver.sunvizion.izzi.mx/Integration.IZZIWebServices/V1/ResourceOperation.svc?wsdl")
-    ca = coverage.get_ca(100, 19.4793065776055, -99.1786767018442, key)
-    coverage = coverage.get_coverage(ca)
-    print(coverage)
+    # coverage.init_service("https://qa-appserver.sunvizion.izzi.mx/Integration.IZZIWebServices/V1/ResourceOperation.svc?wsdl")
+    # ca = coverage.get_ca(100, 19.4793065776055, -99.1786767018442, key)
+    # coverage = coverage.get_coverage(ca)
+    # print(coverage)
