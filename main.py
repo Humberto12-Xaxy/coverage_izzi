@@ -8,12 +8,16 @@ def login(coverage:Coverage):
     
     return key
 
-def get_all_coverage(coverage:Coverage, key:int, list_coordinates:list):
-
+def get_all_coverage(coverage:Coverage, key:int, list_address:list):
+    
+    data = Data()
+    location = Location()
     coverage.init_service('https://qa-appserver.sunvizion.izzi.mx/Integration.IZZIWebServices/V1/ResourceOperation.svc?wsdl')
 
-    for index, coordinates in enumerate(list_coordinates):
+    for index, address in enumerate(list_address):
         try:
+            latitude, longitude = location.get_all_location(address)
+            coordinates = data.save_coordinates(latitude, longitude, index)
             coordinates = coordinates.split(',')
             if coordinates[0] != 'error':
                 ca = coverage.get_ca(10, float(coordinates[0]), float(coordinates[1]), key)
@@ -22,11 +26,10 @@ def get_all_coverage(coverage:Coverage, key:int, list_coordinates:list):
                     
                     print(index ,f'AXTEL: {response_coverage["AXTEL"]} CA: {response_coverage["CA"]} DNS: {response_coverage["DNS"]} DOCSIS: {response_coverage["DOCSIS"]} FTTH: {response_coverage["FTTH"]} GPON: {response_coverage["GPON"]} HFC: {response_coverage["HFC"]} ORZ: {response_coverage["ORZ"]}')
                     data.save_cobertura(f'AXTEL: {response_coverage["AXTEL"]} CA: {response_coverage["CA"]} DNS: {response_coverage["DNS"]} DOCSIS: {response_coverage["DOCSIS"]} FTTH: {response_coverage["FTTH"]} GPON: {response_coverage["GPON"]} HFC: {response_coverage["HFC"]} ORZ: {response_coverage["ORZ"]}', index)
-                    # list_coverage.append(f'AXTEL: {response_coverage["AXTEL"]}, CA: {response_coverage["CA"]}, DNS: {response_coverage["DNS"]}, DOCSIS: {response_coverage["DOCSIS"]}, FTTH: {response_coverage["FTTH"]}, GPON: {response_coverage["GPON"]}, HFC: {response_coverage["HFC"]}, ORZ: {response_coverage["ORZ"]}')
+                
                 else:
                     print(index, 'No hay cobertura')
                     data.save_cobertura('No hay cobertura', index)
-                    # list_coverage.append('No hay cobertura')
             else:
                 print(index, 'No se encontró la ubicación')
                 data.save_cobertura('No se encontró la ubicación', index)
@@ -38,11 +41,8 @@ def get_all_coverage(coverage:Coverage, key:int, list_coordinates:list):
 if __name__ == '__main__':
 
     coverage = Coverage()
-    location = Location()
     data = Data()
-
-    list_coordinates = data.get_coordinates()
 
     key = login(coverage)
     print(key)
-    get_all_coverage(coverage, key, list_coordinates)
+    get_all_coverage(coverage, key, data.get_address())

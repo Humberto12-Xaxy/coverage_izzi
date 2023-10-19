@@ -4,8 +4,7 @@ class Data:
 
     def __init__(self) -> None:
         self.file = 'DF_Gis_Data_Manriquez.csv'
-        self.df = pd.read_csv(self.file, encoding='utf-8')
-        self.df_new = pd.read_csv('coberturas_izzi.csv', encoding= 'utf-8')
+        self.df = pd.read_csv(self.file, encoding='utf-8', low_memory= False)
     
     get_address = lambda self: list(self.df['DirecconGis'])
 
@@ -13,15 +12,14 @@ class Data:
 
     get_coordinates = lambda self: list(self.df['Coordenadas'])
 
-    def save_coordinates(self, list_coordinates:list):
+    def save_coordinates(self, latitude:float, longitude:float, index:int):
 
-        for i in range(len(list_coordinates)):
-
-            longitude, latitude = list_coordinates[i]
-
-            self.df.loc[i, 'Coordenadas'] = f'{longitude}, {latitude}'
+        coordinate_complete = f'{latitude}, {longitude}'
+        self.df.loc[index, 'Coordenadas'] = f'{latitude}, {longitude}'
         
         self.df.to_csv(self.file, index= False)
+
+        return coordinate_complete
     
     def save_cobertura(self, coverage:str, index:int):
 
@@ -29,11 +27,11 @@ class Data:
         
         self.df_new.to_csv('coberturas_izzi.csv', index= False)
 
-    def save_new_file(self, id, adress, coordinates):
+    def save_new_file(self, id, address, coordinates):
 
         data = {
             'id_register': id,
-            'direccion' : adress,
+            'direccion' : address,
             'coordenadas' : coordinates
         }
 
@@ -48,6 +46,6 @@ class Data:
 if __name__ == '__main__':
     data = Data()
 
-    # print(data.get_id())
+    print(data.get_id())
 
     data.save_new_file(data.get_id(), data.get_address(), data.get_coordinates())
